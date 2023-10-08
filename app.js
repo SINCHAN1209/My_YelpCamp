@@ -29,7 +29,7 @@ const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
 
 //const dbUrl = process.env.DB_URL;
-const dbUrl = 'mongodb://localhost:27017/yelp-camp';
+const dbUrl = process.env.DB_URL||'mongodb://localhost:27017/yelp-camp';
 mongoose.connect(dbUrl);
 
 const db = mongoose.connection;
@@ -49,17 +49,19 @@ app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(mongoSanitize()) 
 
+const secret = process.env.SECRET || 'thisshouldbeabettersecret';
+
 const store = MongoStore.create({
     mongoUrl: dbUrl,
     touchAfter: 24 * 60 * 60,
     crypto: {
-        secret: 'thisshouldbeabettersecret'
+        secret
     }
 });
 
 const sessionConfig = {
     store,
-    secret: 'thisshouldbeabettersecret',
+    secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
